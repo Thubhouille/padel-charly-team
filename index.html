@@ -490,15 +490,186 @@
       line-height: 1.45;
     }
 
-    .view-placeholder {
-      padding: 16px;
-      border-radius: 16px;
-      background: rgba(30,41,59,.72);
-      border: 1px dashed rgba(255,255,255,.20);
-      color: var(--muted);
-      text-align: center;
-      font-size: 14px;
-      line-height: 1.45;
+    /* Optimisation iPhone SE / petits écrans */
+    @media (max-width: 480px) {
+      body {
+        padding: 8px;
+      }
+
+      .app {
+        padding-bottom: 24px;
+      }
+
+      header,
+      .card,
+      .match-box,
+      details {
+        padding: 12px;
+        margin-bottom: 10px;
+        border-radius: 18px;
+      }
+
+      h1 {
+        font-size: 20px;
+        line-height: 1.1;
+      }
+
+      h2 {
+        font-size: 17px;
+        margin-bottom: 8px;
+      }
+
+      h3 {
+        font-size: 15px;
+        margin: 10px 0 6px;
+      }
+
+      .top-row {
+        margin-top: 8px;
+        gap: 6px;
+      }
+
+      .pill {
+        padding: 6px 9px;
+        font-size: 11px;
+      }
+
+      .notice {
+        padding: 10px;
+        font-size: 12px;
+        border-radius: 14px;
+      }
+
+      .view-switch {
+        gap: 6px;
+        margin-bottom: 8px;
+      }
+
+      .view-switch button,
+      .nav-period button {
+        min-height: 38px;
+        padding: 8px;
+        font-size: 13px;
+        border-radius: 12px;
+      }
+
+      .nav-period {
+        gap: 6px;
+        margin-bottom: 8px;
+      }
+
+      .period-title {
+        padding: 8px 10px;
+        margin-bottom: 8px;
+        font-size: 12px;
+        border-radius: 12px;
+      }
+
+      .small {
+        font-size: 12px;
+        line-height: 1.3;
+      }
+
+      .grid-cards,
+      .slots {
+        grid-template-columns: 1fr;
+        gap: 6px;
+      }
+
+      .week-card,
+      .day-card,
+      .slot {
+        min-height: 58px;
+        padding: 8px 10px;
+        border-radius: 13px;
+      }
+
+      .card-title {
+        font-size: 14px;
+        margin-bottom: 3px;
+      }
+
+      .card-meta {
+        font-size: 11px;
+        line-height: 1.25;
+      }
+
+      .dispo-indicator,
+      .match-indicator {
+        margin-top: 5px;
+        padding: 4px 7px;
+        font-size: 11px;
+      }
+
+      .slot-date {
+        font-size: 11px;
+        margin-bottom: 2px;
+      }
+
+      .slot-time {
+        font-size: 17px;
+        margin-bottom: 3px;
+      }
+
+      .slot-count {
+        font-size: 11px;
+      }
+
+      .slot-names {
+        font-size: 11px;
+        margin-top: 3px;
+        line-height: 1.2;
+      }
+
+      .match-item,
+      .best {
+        padding: 9px 10px;
+        margin-bottom: 6px;
+        border-radius: 13px;
+        font-size: 12px;
+      }
+
+      .best-level {
+        margin-top: 5px;
+        padding: 4px 7px;
+        font-size: 11px;
+      }
+
+      .open-hint {
+        margin-top: 4px;
+        font-size: 11px;
+      }
+
+      .player-buttons {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+
+      .player-buttons button {
+        min-height: 46px;
+        font-size: 15px;
+      }
+
+      button,
+      input,
+      select {
+        min-height: 40px;
+        padding: 8px 10px;
+        font-size: 14px;
+        border-radius: 12px;
+      }
+
+      .player-line {
+        padding: 7px 9px;
+        font-size: 13px;
+        border-radius: 12px;
+      }
+
+      .player-line button {
+        min-height: 30px;
+        font-size: 12px;
+        padding: 5px 8px;
+      }
     }
 
   </style>
@@ -514,7 +685,7 @@
 <body>
 <div class="app">
   <header>
-    <h1>Charly's Padel Team</h1>
+    <h1>🎾 Horaire Padel de la Charly Team</h1>
     
     <div class="top-row">
       <div id="syncStatus" class="pill"><i></i><span>Synchronisation...</span></div>
@@ -536,7 +707,7 @@
     <h2>📅 Disponibilités</h2>
 
     <div class="view-switch">
-      <button id="viewDay">Jour</button>
+      <button id="viewDay" class="active">Jour</button>
       <button id="viewWeek">Semaine</button>
       <button id="viewMonth">Mois</button>
     </div>
@@ -630,7 +801,7 @@ const ADMIN_PIN = "charly";
 let currentPlayer = localStorage.getItem("padelPlayer") || "";
 let isAdmin = localStorage.getItem("padelAdmin") === "true";
 
-let currentView = null;
+let currentView = "day";
 let periodStart = todayAtMidnight();
 let selectedWeekStart = null;
 let selectedDay = new Date(periodStart);
@@ -1049,11 +1220,6 @@ function movePeriod(direction) {
 function renderPeriodTitle() {
   const title = document.getElementById("periodTitle");
 
-  if (!currentView) {
-    title.innerHTML = "Choisis une vue pour afficher les disponibilités.";
-    return;
-  }
-
   if (currentView === "day") {
     title.innerHTML = "Vue <strong>Jour</strong> — " + selectedDay.toLocaleDateString("fr-BE", { weekday:"long", day:"2-digit", month:"2-digit", year:"numeric" });
   }
@@ -1077,8 +1243,6 @@ function renderBreadcrumb() {
   const div = document.getElementById("breadcrumb");
   div.innerHTML = "";
 
-  if (!currentView) return;
-
   if (currentView === "month" && selectedWeekStart) {
     const btn = document.createElement("button");
     btn.textContent = "← Retour aux semaines";
@@ -1099,13 +1263,6 @@ function setHelp(text) {
 }
 
 function renderMainView() {
-  if (!currentView) {
-    setHelp("");
-    const view = document.getElementById("mainView");
-    view.innerHTML = `<div class="view-placeholder">Appuie sur <strong>Jour</strong>, <strong>Semaine</strong> ou <strong>Mois</strong> pour afficher les créneaux.</div>`;
-    return;
-  }
-
   if (currentView === "day") return renderDaySlots(selectedDay);
   if (currentView === "week") return selectedDay ? renderDaySlots(selectedDay) : renderWeekDays(getMonday(periodStart));
   if (currentView === "month") {
