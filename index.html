@@ -1,0 +1,1560 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Horaire Padel de la Charly Team</title>
+
+  <style>
+    :root {
+      --bg: #070b16;
+      --card: #121827;
+      --card2: #1d2638;
+      --text: #f8fafc;
+      --muted: #cbd5e1;
+      --pink: #ec4899;
+      --purple: #7c3aed;
+      --green: #22c55e;
+      --orange: #f59e0b;
+      --red: #ef4444;
+      --border: rgba(255,255,255,.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(236,72,153,.28), transparent 30%),
+        radial-gradient(circle at top right, rgba(124,58,237,.28), transparent 35%),
+        linear-gradient(180deg, #101827, var(--bg));
+      color: var(--text);
+      min-height: 100vh;
+      padding: 14px;
+    }
+
+    .app {
+      max-width: 820px;
+      margin: 0 auto;
+      padding-bottom: 40px;
+    }
+
+    header, .card, .match-box, details {
+      background: rgba(18,24,39,.94);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: 0 16px 34px rgba(0,0,0,.25);
+    }
+
+    header {
+      background: rgba(7,11,22,.88);
+      box-shadow: 0 20px 45px rgba(0,0,0,.35);
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.15;
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: 19px;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 16px;
+    }
+
+    .subtitle, .small {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .subtitle { margin-top: 6px; }
+
+    .top-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .pill {
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(30,41,59,.85);
+      color: var(--muted);
+      font-size: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .pill i {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      display: inline-block;
+      background: var(--orange);
+    }
+
+    .pill.ok {
+      color: #bbf7d0;
+      background: rgba(34,197,94,.13);
+      border-color: rgba(34,197,94,.35);
+    }
+
+    .pill.ok i { background: var(--green); }
+
+    button, input, select {
+      width: 100%;
+      min-height: 46px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      font-size: 16px;
+      background: #020617;
+      color: var(--text);
+    }
+
+    button {
+      border: none;
+      font-weight: 800;
+      cursor: pointer;
+      background: linear-gradient(135deg, var(--pink), var(--purple));
+      margin-top: 10px;
+    }
+
+    button.secondary {
+      background: #263244;
+      box-shadow: none;
+      border: 1px solid var(--border);
+    }
+
+    button.danger {
+      background: var(--red);
+      box-shadow: none;
+    }
+
+    input[type=date] { color-scheme: dark; }
+
+    input[type=date]::-webkit-calendar-picker-indicator {
+      display: none;
+      -webkit-appearance: none;
+    }
+
+    .player-buttons {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .player-buttons button {
+      min-height: 58px;
+      margin: 0;
+      font-size: 17px;
+    }
+
+    .connected {
+      padding: 12px;
+      border-radius: 16px;
+      background: rgba(34,197,94,.16);
+      border: 1px solid rgba(34,197,94,.46);
+      color: #bbf7d0;
+    }
+
+    .view-switch {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .view-switch button {
+      margin: 0;
+      background: #263244;
+      border: 1px solid var(--border);
+      box-shadow: none;
+      font-size: 14px;
+    }
+
+    .view-switch button.active {
+      background: linear-gradient(135deg, var(--pink), var(--purple));
+    }
+
+    .nav-period {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .nav-period button {
+      margin: 0;
+      background: #263244;
+      box-shadow: none;
+    }
+
+    .period-title {
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(236,72,153,.10);
+      border: 1px solid rgba(236,72,153,.35);
+      color: #fce7f3;
+      margin-bottom: 12px;
+      font-size: 14px;
+      line-height: 1.35;
+    }
+
+    .breadcrumb {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .breadcrumb button {
+      width: auto;
+      min-height: 36px;
+      margin: 0;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(30,41,59,.92);
+      border: 1px solid var(--border);
+      font-size: 13px;
+      box-shadow: none;
+    }
+
+    .grid-cards, .slots {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .week-card, .day-card, .slot {
+      border-radius: 17px;
+      padding: 12px;
+      background: rgba(30,41,59,.92);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      min-height: 86px;
+    }
+
+    .week-card.has-dispo, .day-card.has-dispo {
+      border: 2px solid var(--green);
+      box-shadow: 0 0 0 2px rgba(34,197,94,.13), 0 0 18px rgba(34,197,94,.14);
+    }
+
+    .week-card.has-match, .day-card.has-match {
+      border: 2px solid var(--pink);
+      box-shadow: 0 0 0 2px rgba(236,72,153,.16), 0 0 20px rgba(236,72,153,.22);
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 900;
+      margin-bottom: 6px;
+    }
+
+    .card-meta {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
+    .dispo-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 8px;
+      padding: 5px 8px;
+      border-radius: 999px;
+      background: rgba(34,197,94,.17);
+      color: #bbf7d0;
+      font-size: 12px;
+      border: 1px solid rgba(34,197,94,.35);
+    }
+
+    .match-indicator {
+      background: rgba(236,72,153,.18);
+      color: #fbcfe8;
+      border: 1px solid rgba(236,72,153,.4);
+    }
+
+    .slot.mine {
+      outline: 3px solid var(--pink);
+    }
+
+    .slot.full {
+      background: rgba(34,197,94,.40);
+      border-color: rgba(34,197,94,.75);
+    }
+
+    .slot.good {
+      background: rgba(245,158,11,.38);
+      border-color: rgba(245,158,11,.72);
+    }
+
+    .slot-time {
+      font-size: 20px;
+      font-weight: 900;
+      margin-bottom: 6px;
+    }
+
+    .slot-date {
+      font-size: 13px;
+      color: #fce7f3;
+      margin-bottom: 4px;
+    }
+
+    .slot-count {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .slot-names {
+      font-size: 12px;
+      color: #e2e8f0;
+      margin-top: 5px;
+      line-height: 1.25;
+    }
+
+    .match-box {
+      background: linear-gradient(135deg, rgba(34,197,94,.26), rgba(236,72,153,.16));
+      border: 2px solid rgba(34,197,94,.72);
+    }
+
+    .match-item, .best {
+      padding: 12px;
+      border-radius: 16px;
+      margin-bottom: 8px;
+      line-height: 1.35;
+      cursor: pointer;
+    }
+
+    .match-item {
+      background: rgba(34,197,94,.22);
+      border: 1px solid rgba(34,197,94,.45);
+    }
+
+    .best.best-2 {
+      background: rgba(245,158,11,.24);
+      border: 1px solid rgba(245,158,11,.62);
+      box-shadow: 0 0 16px rgba(245,158,11,.12);
+    }
+
+    .best.best-2 strong { color: #fde68a; }
+
+    .best.best-3 {
+      background: linear-gradient(135deg, rgba(245,158,11,.30), rgba(236,72,153,.28));
+      border: 1px solid rgba(236,72,153,.82);
+      box-shadow: 0 0 22px rgba(236,72,153,.22);
+    }
+
+    .best.best-3 strong { color: #fbcfe8; }
+
+    .best-level {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 7px;
+      padding: 5px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      border: 1px solid rgba(255,255,255,.18);
+    }
+
+    .best-2 .best-level {
+      background: rgba(245,158,11,.18);
+      color: #fde68a;
+    }
+
+    .best-3 .best-level {
+      background: rgba(236,72,153,.20);
+      color: #fbcfe8;
+    }
+
+    .open-hint {
+      display: block;
+      margin-top: 6px;
+      color: #fbcfe8;
+      font-size: 12px;
+    }
+
+    .no-match {
+      background: rgba(245,158,11,.16);
+      border: 1px solid rgba(245,158,11,.42);
+      border-radius: 15px;
+      padding: 12px;
+      color: #fde68a;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    details {
+      background: rgba(18,24,39,.72);
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 800;
+      color: #fce7f3;
+    }
+
+    label {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+      margin: 12px 0 6px;
+    }
+
+    .date-row {
+      display: grid;
+      grid-template-columns: 1fr 150px;
+      gap: 10px;
+      align-items: end;
+    }
+
+    .date-row button {
+      margin-top: 0;
+      background: #263244;
+      border: 1px solid var(--border);
+      box-shadow: none;
+    }
+
+    .row2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .players-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .player-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: rgba(30,41,59,.92);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 9px 10px;
+      font-size: 14px;
+    }
+
+    .player-line button {
+      width: auto;
+      min-height: 34px;
+      padding: 6px 10px;
+      margin: 0;
+      border-radius: 10px;
+      background: var(--red);
+      font-size: 13px;
+      box-shadow: none;
+    }
+
+    @media (min-width: 620px) {
+      .slots, .grid-cards { grid-template-columns: repeat(3, 1fr); }
+      .player-buttons { grid-template-columns: repeat(4, 1fr); }
+    }
+
+    @media (max-width: 430px) {
+      .date-row { grid-template-columns: 1fr; }
+      .date-row button { margin-top: 8px; }
+    }
+  
+    .notice {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 16px;
+      background: rgba(236,72,153,.12);
+      border: 1px solid rgba(236,72,153,.35);
+      color: #fce7f3;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .view-placeholder {
+      padding: 16px;
+      border-radius: 16px;
+      background: rgba(30,41,59,.72);
+      border: 1px dashed rgba(255,255,255,.20);
+      color: var(--muted);
+      text-align: center;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+  </style>
+
+  <link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjogIkhvcmFpcmUgUGFkZWwgLSBDaGFybHkgVGVhbSIsICJzaG9ydF9uYW1lIjogIlBhZGVsIENoYXJseSIsICJzdGFydF91cmwiOiAiLiIsICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLCAiYmFja2dyb3VuZF9jb2xvciI6ICIjMDcwYjE2IiwgInRoZW1lX2NvbG9yIjogIiNlYzQ4OTkiLCAiZGVzY3JpcHRpb24iOiAiT3JnYW5pc2F0aW9uIGRlcyBjclx1MDBlOW5lYXV4IHBhZGVsIGRlIGxhIENoYXJseSBUZWFtIiwgImljb25zIjogW119">
+  <meta name="theme-color" content="#ec4899">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Padel Charly">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+</head>
+
+<body>
+<div class="app">
+  <header>
+    <h1>🎾 Horaire Padel de la Charly Team</h1>
+    
+    <div class="top-row">
+      <div id="syncStatus" class="pill"><i></i><span>Synchronisation...</span></div>
+      <div id="playerStatus" class="pill"><i></i><span>Non connecté</span></div>
+    </div>
+
+    <div id="introNotice" class="notice">
+      Sélectionne ton prénom, puis clique sur tes créneaux disponibles. Les créneaux 4/4 apparaissent dans <strong>Créneaux qui matchent</strong>.
+    </div>
+</header>
+
+  <section id="identityCard" class="card">
+    <h2>👤 Joueur</h2>
+    <div class="small">Sélectionne ton prénom. Il sera mémorisé sur ce téléphone.</div>
+    <div id="playerSelect" class="player-buttons"></div>
+  </section>
+
+  <section class="card">
+    <h2>📅 Disponibilités</h2>
+
+    <div class="view-switch">
+      <button id="viewDay">Jour</button>
+      <button id="viewWeek">Semaine</button>
+      <button id="viewMonth">Mois</button>
+    </div>
+
+    <div class="nav-period">
+      <button id="prevPeriod" class="secondary">← Précédent</button>
+      <button id="nextPeriod" class="secondary">Suivant →</button>
+    </div>
+
+    <div id="periodTitle" class="period-title"></div>
+    <div id="breadcrumb" class="breadcrumb"></div>
+    <p id="viewHelp" class="small"></p>
+    <div id="mainView"></div>
+  </section>
+
+  <section class="match-box">
+    <h2>🎯 Créneaux qui matchent</h2>
+    <p class="small">Tous les créneaux 4/4, toutes périodes confondues.</p>
+    <div id="perfectMatches"></div>
+    <button id="shareBtn" style="display:none;">Partager le résultat</button>
+  </section>
+
+  <section class="card">
+    <h2>🏆 Meilleurs créneaux</h2>
+    <p class="small">Créneaux 2/4 et 3/4, toutes périodes confondues.</p>
+    <div id="best"></div>
+  </section>
+
+  <details id="adminPanel">
+    <summary>⚙️ Réglages / Admin</summary>
+
+    <h3>Mode admin</h3>
+    <div id="adminInfo" class="small"></div>
+    <button id="adminLoginBtn" class="secondary">Activer admin</button>
+    <button id="adminLogoutBtn" class="danger" style="display:none;">Désactiver admin</button>
+    <button id="adminChangePlayerBtn" class="secondary" style="display:none;">Changer de joueur</button>
+
+    <h3>Réglages horaires</h3>
+    <label for="startDate">Date de référence</label>
+    <div class="date-row">
+      <input id="startDate" type="date" />
+      <button id="openDatePicker" type="button">📅 Choisir</button>
+    </div>
+
+    <div class="row2">
+      <div>
+        <label for="startHour">Début</label>
+        <select id="startHour"></select>
+      </div>
+      <div>
+        <label for="endHour">Fin</label>
+        <select id="endHour"></select>
+      </div>
+    </div>
+    <button id="saveSettingsBtn" class="secondary">Mettre à jour les heures</button>
+
+    <h3>Joueurs inscrits</h3>
+    <div id="playersList" class="players-list"></div>
+
+    <h3>Sauvegarde</h3>
+    <button id="backupBtn" class="secondary">💾 Télécharger une sauvegarde JSON</button>
+    <button id="restoreBtn" class="secondary">📂 Restaurer une sauvegarde JSON</button>
+    <input id="restoreInput" type="file" accept="application/json,.json" style="display:none;" />
+
+    <button id="resetBtn" class="danger">🧹 Remettre les créneaux à zéro</button>
+  </details>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyB-VQstF25zG1NN9K1fYU8dapn8A4L81ps",
+  authDomain: "padel-horaire-cf2fd.firebaseapp.com",
+  projectId: "padel-horaire-cf2fd",
+  storageBucket: "padel-horaire-cf2fd.firebasestorage.app",
+  messagingSenderId: "314198372668",
+  appId: "1:314198372668:web:1a7b30256eb9a447be2e39"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const ref = doc(db, "padelMatches", "padel-horaire-principal");
+
+const PLAYERS = ["Thierry", "Charlotte", "Christelle", "Valentine"];
+const REQUIRED_PLAYERS = 4;
+const ADMIN_NAME = "Thierry";
+const ADMIN_PIN = "charly";
+
+let currentPlayer = localStorage.getItem("padelPlayer") || "";
+let isAdmin = localStorage.getItem("padelAdmin") === "true";
+
+let currentView = null;
+let periodStart = todayAtMidnight();
+let selectedWeekStart = null;
+let selectedDay = new Date(periodStart);
+
+let state = defaultState();
+
+function defaultState() {
+  return {
+    startDate: todayAtMidnight().toISOString().slice(0, 10),
+    startHour: 17,
+    endHour: 23,
+    players: [],
+    availability: {}
+  };
+}
+
+function todayAtMidnight() {
+  const d = new Date();
+  d.setHours(0,0,0,0);
+  return d;
+}
+
+function getMonday(date) {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  d.setDate(diff);
+  d.setHours(0,0,0,0);
+  return d;
+}
+
+function cleanPlayers(players) {
+  return Array.from(new Set((players || [])
+    .filter(p => typeof p === "string")
+    .filter(Boolean)
+  )).sort((a,b) => a.localeCompare(b, "fr"));
+}
+
+function normalizeSlot(players) {
+  return cleanPlayers(players);
+}
+
+function setStatus(text, online=false) {
+  const el = document.getElementById("syncStatus");
+  el.querySelector("span").textContent = text;
+  el.className = online ? "pill ok" : "pill";
+}
+
+function fillHours() {
+  const start = document.getElementById("startHour");
+  const end = document.getElementById("endHour");
+  start.innerHTML = "";
+  end.innerHTML = "";
+
+  for (let h = 6; h <= 24; h++) {
+    const label = String(h).padStart(2, "0") + ":00";
+    start.add(new Option(label, h));
+    end.add(new Option(label, h));
+  }
+}
+
+async function init() {
+  fillHours();
+
+  const existing = await getDoc(ref);
+  if (!existing.exists()) {
+    await setDoc(ref, defaultState());
+  }
+
+  onSnapshot(ref, (snapshot) => {
+    if (!snapshot.exists()) return;
+
+    const data = snapshot.data();
+    state = {
+      ...defaultState(),
+      ...data,
+      players: cleanPlayers(data.players || []),
+      availability: data.availability || {}
+    };
+
+    setStatus("Synchronisé", true);
+    renderAll();
+  }, (error) => {
+    console.error(error);
+    setStatus("Erreur Firebase", false);
+    alert("Erreur Firebase : " + error.message);
+  });
+}
+
+
+function updateIntroNotice() {
+  const notice = document.getElementById("introNotice");
+  if (!notice) return;
+
+  notice.style.display = currentPlayer ? "none" : "block";
+}
+
+function renderAll() {
+  document.getElementById("startDate").value = state.startDate;
+  document.getElementById("startHour").value = state.startHour;
+  document.getElementById("endHour").value = state.endHour;
+
+  updateIntroNotice();
+  renderIdentity();
+  renderAdmin();
+  renderPlayersList();
+  renderPeriodTitle();
+  renderBreadcrumb();
+  renderMainView();
+  renderPerfectMatches();
+  renderBest();
+}
+
+function renderIdentity() {
+  const card = document.getElementById("identityCard");
+  const select = document.getElementById("playerSelect");
+  const status = document.getElementById("playerStatus");
+
+  if (currentPlayer) {
+    card.style.display = "none";
+    status.className = "pill ok";
+    status.querySelector("span").textContent = currentPlayer + (isAdmin ? " · admin" : "");
+    return;
+  }
+
+  card.style.display = "block";
+  status.className = "pill";
+  status.querySelector("span").textContent = "Non connecté";
+
+  select.innerHTML = "";
+  PLAYERS.forEach(name => {
+    const btn = document.createElement("button");
+    btn.textContent = name;
+    btn.addEventListener("click", () => selectPlayer(name));
+    select.appendChild(btn);
+  });
+}
+
+async function selectPlayer(name) {
+  currentPlayer = name;
+  localStorage.setItem("padelPlayer", name);
+
+  if (name !== ADMIN_NAME) {
+    isAdmin = false;
+    localStorage.removeItem("padelAdmin");
+  }
+
+  const players = cleanPlayers([...(state.players || []), name]);
+  await updateDoc(ref, { players });
+  renderAll();
+}
+
+function changePlayer() {
+  if (!isAdmin) {
+    alert("Seul l’admin peut changer de joueur.");
+    return;
+  }
+
+  currentPlayer = "";
+  localStorage.removeItem("padelPlayer");
+  renderAll();
+}
+
+function activateAdmin() {
+  if (currentPlayer !== ADMIN_NAME) {
+    alert("Le mode admin est réservé à Thierry.");
+    return;
+  }
+
+  const pin = prompt("Code admin :");
+  if (pin === ADMIN_PIN) {
+    isAdmin = true;
+    localStorage.setItem("padelAdmin", "true");
+    renderAll();
+    alert("Mode admin activé.");
+  } else if (pin !== null) {
+    alert("Code incorrect.");
+  }
+}
+
+function deactivateAdmin() {
+  isAdmin = false;
+  localStorage.removeItem("padelAdmin");
+  renderAll();
+}
+
+function renderAdmin() {
+  const info = document.getElementById("adminInfo");
+  const login = document.getElementById("adminLoginBtn");
+  const logout = document.getElementById("adminLogoutBtn");
+  const change = document.getElementById("adminChangePlayerBtn");
+
+  if (!currentPlayer) {
+    info.textContent = "Sélectionne d’abord ton joueur.";
+    login.style.display = "none";
+    logout.style.display = "none";
+    change.style.display = "none";
+    return;
+  }
+
+  if (isAdmin) {
+    info.textContent = "Mode admin actif.";
+    login.style.display = "none";
+    logout.style.display = "block";
+    change.style.display = "block";
+  } else if (currentPlayer === ADMIN_NAME) {
+    info.textContent = "Tu peux activer le mode admin avec le code.";
+    login.style.display = "block";
+    logout.style.display = "none";
+    change.style.display = "none";
+  } else {
+    info.textContent = "Mode joueur simple.";
+    login.style.display = "none";
+    logout.style.display = "none";
+    change.style.display = "none";
+  }
+}
+
+function canRemovePlayer(name) {
+  return isAdmin || name === currentPlayer;
+}
+
+function renderPlayersList() {
+  const list = document.getElementById("playersList");
+  const players = cleanPlayers(state.players || []);
+
+  if (!players.length) {
+    list.innerHTML = `<p class="small">Aucun joueur inscrit.</p>`;
+    return;
+  }
+
+  list.innerHTML = "";
+
+  players.forEach(name => {
+    const line = document.createElement("div");
+    line.className = "player-line";
+
+    const span = document.createElement("span");
+    span.textContent = name;
+    line.appendChild(span);
+
+    if (canRemovePlayer(name)) {
+      const btn = document.createElement("button");
+      btn.textContent = isAdmin && name !== currentPlayer ? "Supprimer" : "Me retirer";
+      btn.addEventListener("click", () => removePlayer(name));
+      line.appendChild(btn);
+    } else {
+      const locked = document.createElement("span");
+      locked.className = "small";
+      locked.textContent = "verrouillé";
+      line.appendChild(locked);
+    }
+
+    list.appendChild(line);
+  });
+}
+
+async function removePlayer(name) {
+  if (!canRemovePlayer(name)) return;
+
+  if (!confirm("Supprimer " + name + " ?")) return;
+
+  const snap = await getDoc(ref);
+  const data = snap.exists() ? snap.data() : defaultState();
+  const availability = { ...(data.availability || {}) };
+
+  Object.keys(availability).forEach(key => {
+    availability[key] = normalizeSlot(availability[key]).filter(p => p !== name);
+    if (!availability[key].length) delete availability[key];
+  });
+
+  const players = cleanPlayers((data.players || []).filter(p => p !== name));
+
+  if (currentPlayer === name) {
+    currentPlayer = "";
+    isAdmin = false;
+    localStorage.removeItem("padelPlayer");
+    localStorage.removeItem("padelAdmin");
+  }
+
+  await updateDoc(ref, { players, availability });
+}
+
+async function toggleSlot(key) {
+  if (!currentPlayer) {
+    alert("Sélectionne d’abord ton joueur.");
+    return;
+  }
+
+  try {
+    const snap = await getDoc(ref);
+    const data = snap.exists() ? snap.data() : defaultState();
+
+    const availability = { ...(data.availability || {}) };
+    let players = normalizeSlot(availability[key] || []);
+
+    if (players.includes(currentPlayer)) {
+      players = players.filter(p => p !== currentPlayer);
+    } else {
+      players.push(currentPlayer);
+    }
+
+    players = normalizeSlot(players);
+
+    if (players.length) availability[key] = players;
+    else delete availability[key];
+
+    const allPlayers = cleanPlayers([
+      ...(data.players || []),
+      currentPlayer,
+      ...Object.values(availability).flat()
+    ]);
+
+    await updateDoc(ref, { availability, players: allPlayers });
+  } catch (e) {
+    console.error(e);
+    alert("Erreur lors de la mise à jour du créneau.");
+  }
+}
+
+async function saveSettings() {
+  const startHour = Number(document.getElementById("startHour").value);
+  const endHour = Number(document.getElementById("endHour").value);
+  const startDate = document.getElementById("startDate").value;
+
+  if (endHour <= startHour) {
+    alert("L’heure de fin doit être après l’heure de début.");
+    return;
+  }
+
+  await updateDoc(ref, { startHour, endHour, startDate });
+
+  const refDate = new Date(startDate + "T00:00:00");
+  periodStart = new Date(refDate);
+  selectedDay = new Date(refDate);
+  selectedWeekStart = null;
+}
+
+async function resetAll() {
+  if (!isAdmin) {
+    alert("Admin uniquement.");
+    return;
+  }
+
+  if (!confirm("Effacer tous les créneaux et joueurs ?")) return;
+
+  await setDoc(ref, {
+    ...defaultState(),
+    startDate: state.startDate,
+    startHour: state.startHour,
+    endHour: state.endHour
+  });
+
+  alert("Données remises à zéro.");
+}
+
+function openDatePicker() {
+  const input = document.getElementById("startDate");
+  if (typeof input.showPicker === "function") input.showPicker();
+  else {
+    input.focus();
+    input.click();
+  }
+}
+
+function setView(view) {
+  currentView = view;
+
+  if (view === "day") {
+    selectedDay = new Date(periodStart);
+    selectedWeekStart = null;
+  }
+
+  if (view === "week") {
+    periodStart = getMonday(periodStart);
+    selectedWeekStart = null;
+    selectedDay = null;
+  }
+
+  if (view === "month") {
+    periodStart = new Date(periodStart.getFullYear(), periodStart.getMonth(), 1);
+    selectedWeekStart = null;
+    selectedDay = null;
+  }
+
+  document.getElementById("viewDay").classList.toggle("active", view === "day");
+  document.getElementById("viewWeek").classList.toggle("active", view === "week");
+  document.getElementById("viewMonth").classList.toggle("active", view === "month");
+
+  renderAll();
+}
+
+function movePeriod(direction) {
+  if (currentView === "day") {
+    periodStart.setDate(periodStart.getDate() + direction);
+    selectedDay = new Date(periodStart);
+  }
+
+  if (currentView === "week") {
+    periodStart.setDate(periodStart.getDate() + direction * 7);
+    periodStart = getMonday(periodStart);
+    selectedWeekStart = null;
+    selectedDay = null;
+  }
+
+  if (currentView === "month") {
+    periodStart.setMonth(periodStart.getMonth() + direction);
+    periodStart.setDate(1);
+    selectedWeekStart = null;
+    selectedDay = null;
+  }
+
+  renderAll();
+}
+
+function renderPeriodTitle() {
+  const title = document.getElementById("periodTitle");
+
+  if (!currentView) {
+    title.innerHTML = "Choisis une vue pour afficher les disponibilités.";
+    return;
+  }
+
+  if (currentView === "day") {
+    title.innerHTML = "Vue <strong>Jour</strong> — " + selectedDay.toLocaleDateString("fr-BE", { weekday:"long", day:"2-digit", month:"2-digit", year:"numeric" });
+  }
+
+  if (currentView === "week") {
+    const monday = getMonday(periodStart);
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+    title.innerHTML = "Vue <strong>Semaine</strong> — du " +
+      monday.toLocaleDateString("fr-BE", { day:"2-digit", month:"2-digit" }) +
+      " au " +
+      sunday.toLocaleDateString("fr-BE", { day:"2-digit", month:"2-digit", year:"numeric" });
+  }
+
+  if (currentView === "month") {
+    title.innerHTML = "Vue <strong>Mois</strong> — " + periodStart.toLocaleDateString("fr-BE", { month:"long", year:"numeric" });
+  }
+}
+
+function renderBreadcrumb() {
+  const div = document.getElementById("breadcrumb");
+  div.innerHTML = "";
+
+  if (!currentView) return;
+
+  if (currentView === "month" && selectedWeekStart) {
+    const btn = document.createElement("button");
+    btn.textContent = "← Retour aux semaines";
+    btn.onclick = () => { selectedWeekStart = null; selectedDay = null; renderAll(); };
+    div.appendChild(btn);
+  }
+
+  if ((currentView === "month" && selectedWeekStart && selectedDay) || (currentView === "week" && selectedDay)) {
+    const btn = document.createElement("button");
+    btn.textContent = "← Retour aux jours";
+    btn.onclick = () => { selectedDay = null; renderAll(); };
+    div.appendChild(btn);
+  }
+}
+
+function setHelp(text) {
+  document.getElementById("viewHelp").textContent = text;
+}
+
+function renderMainView() {
+  if (!currentView) {
+    setHelp("");
+    const view = document.getElementById("mainView");
+    view.innerHTML = `<div class="view-placeholder">Appuie sur <strong>Jour</strong>, <strong>Semaine</strong> ou <strong>Mois</strong> pour afficher les créneaux.</div>`;
+    return;
+  }
+
+  if (currentView === "day") return renderDaySlots(selectedDay);
+  if (currentView === "week") return selectedDay ? renderDaySlots(selectedDay) : renderWeekDays(getMonday(periodStart));
+  if (currentView === "month") {
+    if (selectedWeekStart && selectedDay) return renderDaySlots(selectedDay);
+    if (selectedWeekStart) return renderWeekDays(selectedWeekStart);
+    return renderMonthWeeks();
+  }
+}
+
+function getWeekDates(monday) {
+  const dates = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    dates.push(d);
+  }
+  return dates;
+}
+
+function getMonthWeeks() {
+  const first = new Date(periodStart.getFullYear(), periodStart.getMonth(), 1);
+  const last = new Date(periodStart.getFullYear(), periodStart.getMonth() + 1, 0);
+
+  let cursor = getMonday(first);
+  const weeks = [];
+
+  while (cursor <= last || cursor.getMonth() === periodStart.getMonth()) {
+    weeks.push(new Date(cursor));
+    cursor.setDate(cursor.getDate() + 7);
+    if (weeks.length > 6) break;
+  }
+
+  return weeks;
+}
+
+function renderMonthWeeks() {
+  setHelp("Sélectionne une semaine. Vert = disponibilités, rose = 4 joueurs OK.");
+  const view = document.getElementById("mainView");
+  view.innerHTML = `<div class="grid-cards" id="monthWeeks"></div>`;
+  const wrap = document.getElementById("monthWeeks");
+
+  getMonthWeeks().forEach((monday, index) => {
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+
+    const hasDispo = rangeHasAnyDispo(monday, sunday);
+    const hasMatch = rangeHasPerfectMatch(monday, sunday);
+
+    const card = document.createElement("div");
+    card.className = "week-card" + (hasDispo ? " has-dispo" : "") + (hasMatch ? " has-match" : "");
+    card.innerHTML = `
+      <div class="card-title">Semaine ${index + 1}</div>
+      <div class="card-meta">
+        Du ${monday.toLocaleDateString("fr-BE", { day:"2-digit", month:"2-digit" })}<br>
+        au ${sunday.toLocaleDateString("fr-BE", { day:"2-digit", month:"2-digit" })}
+      </div>
+      ${hasMatch ? '<div class="dispo-indicator match-indicator">🎯 4 joueurs OK</div>' : hasDispo ? '<div class="dispo-indicator">✓ Disponibilités</div>' : ''}
+    `;
+    card.onclick = () => { selectedWeekStart = new Date(monday); selectedDay = null; renderAll(); };
+    wrap.appendChild(card);
+  });
+}
+
+function renderWeekDays(monday) {
+  setHelp("Sélectionne un jour pour afficher ses créneaux horaires.");
+  const view = document.getElementById("mainView");
+  view.innerHTML = `<div class="grid-cards" id="weekDays"></div>`;
+  const wrap = document.getElementById("weekDays");
+
+  getWeekDates(monday).forEach(date => {
+    const hasDispo = dayHasAnyDispo(date);
+    const hasMatch = dayHasPerfectMatch(date);
+    const stats = getDayStats(date);
+
+    const card = document.createElement("div");
+    card.className = "day-card" + (hasDispo ? " has-dispo" : "") + (hasMatch ? " has-match" : "");
+    card.innerHTML = `
+      <div class="card-title">${date.toLocaleDateString("fr-BE", { weekday:"long" })}</div>
+      <div class="card-meta">${date.toLocaleDateString("fr-BE", { day:"2-digit", month:"2-digit", year:"numeric" })}</div>
+      ${hasMatch ? '<div class="dispo-indicator match-indicator">🎯 4 joueurs OK</div>' : hasDispo ? '<div class="dispo-indicator">✓ ' + stats.slots + ' créneau(x)</div>' : '<div class="card-meta">Aucune disponibilité</div>'}
+    `;
+    card.onclick = () => { selectedDay = new Date(date); renderAll(); };
+    wrap.appendChild(card);
+  });
+}
+
+function renderDaySlots(date) {
+  setHelp("Clique sur tes créneaux disponibles. Une case entourée en rose = tu es inscrit.");
+  const view = document.getElementById("mainView");
+  view.innerHTML = `<div class="slots" id="slots"></div>`;
+  const wrap = document.getElementById("slots");
+
+  for (let h = state.startHour; h < state.endHour; h++) {
+    const key = slotKey(date, h);
+    const players = normalizeSlot(state.availability[key] || []);
+
+    const slot = document.createElement("div");
+    slot.className = "slot";
+
+    if (players.includes(currentPlayer)) slot.classList.add("mine");
+    if (players.length >= REQUIRED_PLAYERS) slot.classList.add("full");
+    else if (players.length >= 3) slot.classList.add("good");
+
+    slot.innerHTML = `
+      <div class="slot-date">${date.toLocaleDateString("fr-BE", { weekday:"long", day:"2-digit", month:"2-digit" })}</div>
+      <div class="slot-time">${String(h).padStart(2, "0")}:00</div>
+      <div class="slot-count">${players.length}/${REQUIRED_PLAYERS} disponible(s)</div>
+      <div class="slot-names">${players.join(", ") || "Personne"}</div>
+    `;
+    slot.onclick = () => toggleSlot(key);
+    wrap.appendChild(slot);
+  }
+}
+
+function slotKey(date, hour) {
+  const local = new Date(date);
+  local.setHours(hour, 0, 0, 0);
+  return local.getFullYear() + "-" +
+    String(local.getMonth() + 1).padStart(2, "0") + "-" +
+    String(local.getDate()).padStart(2, "0") + "T" +
+    String(hour).padStart(2, "0") + ":00";
+}
+
+function keyToDate(key) {
+  return new Date(key);
+}
+
+function sameDay(a, b) {
+  return a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate();
+}
+
+function getDayStats(date) {
+  let slots = 0;
+  Object.entries(state.availability || {}).forEach(([key, players]) => {
+    if (sameDay(keyToDate(key), date) && normalizeSlot(players).length > 0) slots++;
+  });
+  return { slots };
+}
+
+function dayHasAnyDispo(date) {
+  return Object.entries(state.availability || {}).some(([key, players]) =>
+    sameDay(keyToDate(key), date) && normalizeSlot(players).length > 0
+  );
+}
+
+function dayHasPerfectMatch(date) {
+  return Object.entries(state.availability || {}).some(([key, players]) =>
+    sameDay(keyToDate(key), date) && normalizeSlot(players).length >= REQUIRED_PLAYERS
+  );
+}
+
+function rangeHasAnyDispo(start, end) {
+  const s = new Date(start);
+  const e = new Date(end);
+  e.setHours(23,59,59,999);
+
+  return Object.entries(state.availability || {}).some(([key, players]) => {
+    const d = keyToDate(key);
+    return d >= s && d <= e && normalizeSlot(players).length > 0;
+  });
+}
+
+function rangeHasPerfectMatch(start, end) {
+  const s = new Date(start);
+  const e = new Date(end);
+  e.setHours(23,59,59,999);
+
+  return Object.entries(state.availability || {}).some(([key, players]) => {
+    const d = keyToDate(key);
+    return d >= s && d <= e && normalizeSlot(players).length >= REQUIRED_PLAYERS;
+  });
+}
+
+function getAllPerfectMatches() {
+  return Object.entries(state.availability || {})
+    .filter(([key, players]) => normalizeSlot(players).length >= REQUIRED_PLAYERS)
+    .sort((a,b) => a[0].localeCompare(b[0]));
+}
+
+function getAllBestSlots() {
+  return Object.entries(state.availability || {})
+    .filter(([key, players]) => {
+      const count = normalizeSlot(players).length;
+      return count >= 2 && count < REQUIRED_PLAYERS;
+    })
+    .sort((a,b) => normalizeSlot(b[1]).length - normalizeSlot(a[1]).length || a[0].localeCompare(b[0]))
+    .slice(0, 8);
+}
+
+function renderPerfectMatches() {
+  const box = document.getElementById("perfectMatches");
+  const shareBtn = document.getElementById("shareBtn");
+  const matches = getAllPerfectMatches();
+
+  if (!matches.length) {
+    box.innerHTML = `<div class="no-match">Aucun créneau 4/4 pour le moment.</div>`;
+    shareBtn.style.display = "none";
+    return;
+  }
+
+  shareBtn.style.display = "block";
+
+  box.innerHTML = matches.map(([key, players]) => {
+    const d = new Date(key);
+    const when = d.toLocaleDateString("fr-BE", { weekday:"long", day:"2-digit", month:"2-digit", year:"numeric" }) +
+      " à " + d.toLocaleTimeString("fr-BE", { hour:"2-digit", minute:"2-digit" });
+
+    return `
+      <div class="match-item" data-open="${key}">
+        <strong>${when}</strong><br>
+        ✅ ${normalizeSlot(players).join(", ")}
+        <span class="open-hint">↪ Cliquer pour ouvrir ce jour</span>
+      </div>
+    `;
+  }).join("");
+
+  document.querySelectorAll("[data-open]").forEach(el => {
+    el.onclick = () => openDayFromKey(el.dataset.open);
+  });
+}
+
+function renderBest() {
+  const best = document.getElementById("best");
+  const list = getAllBestSlots();
+
+  if (!list.length) {
+    best.innerHTML = `<p class="small">Aucun créneau en 2/4 ou 3/4 pour le moment.</p>`;
+    return;
+  }
+
+  best.innerHTML = list.map(([key, players], index) => {
+    const p = normalizeSlot(players);
+    const d = new Date(key);
+    const when = d.toLocaleDateString("fr-BE", { weekday:"long", day:"2-digit", month:"2-digit", year:"numeric" }) +
+      " à " + d.toLocaleTimeString("fr-BE", { hour:"2-digit", minute:"2-digit" });
+
+    const levelClass = p.length === 3 ? "best-3" : "best-2";
+    const label = p.length === 3 ? "🔥 Presque complet — 3/4" : "✨ Opportunité — 2/4";
+
+    return `
+      <div class="best ${levelClass}" data-open="${key}">
+        <strong>${index + 1}. ${when}</strong><br>
+        ${p.length}/${REQUIRED_PLAYERS} dispo : ${p.join(", ")}
+        <span class="best-level">${label}</span>
+        <span class="open-hint">↪ Cliquer pour ouvrir ce jour</span>
+      </div>
+    `;
+  }).join("");
+
+  document.querySelectorAll("[data-open]").forEach(el => {
+    el.onclick = () => openDayFromKey(el.dataset.open);
+  });
+}
+
+function openDayFromKey(key) {
+  const d = new Date(key);
+  d.setHours(0,0,0,0);
+
+  selectedDay = new Date(d);
+  periodStart = new Date(d);
+  currentView = "day";
+
+  document.getElementById("viewDay").classList.add("active");
+  document.getElementById("viewWeek").classList.remove("active");
+  document.getElementById("viewMonth").classList.remove("active");
+
+  renderAll();
+  document.getElementById("mainView")?.scrollIntoView({ behavior:"smooth", block:"start" });
+}
+
+function summaryText() {
+  const perfect = getAllPerfectMatches();
+  let txt = "🎾 Horaire Padel de la Charly Team\n";
+
+  if (!perfect.length) return txt + "\nAucun créneau 4/4 pour le moment.";
+
+  txt += "\n🎯 Créneaux 4/4 :\n";
+  perfect.forEach(([key, players]) => {
+    const d = new Date(key);
+    const when = d.toLocaleDateString("fr-BE", { weekday:"long", day:"2-digit", month:"2-digit", year:"numeric" }) +
+      " à " + d.toLocaleTimeString("fr-BE", { hour:"2-digit", minute:"2-digit" });
+    txt += "✅ " + when + " — " + normalizeSlot(players).join(", ") + "\n";
+  });
+
+  return txt;
+}
+
+
+async function downloadBackup() {
+  if (!isAdmin) {
+    alert("Admin uniquement.");
+    return;
+  }
+
+  try {
+    const snap = await getDoc(ref);
+    if (!snap.exists()) {
+      alert("Aucune donnée Firebase à sauvegarder.");
+      return;
+    }
+
+    const data = snap.data();
+
+    const backup = {
+      app: "Horaire Padel de la Charly Team",
+      version: "backup-v1",
+      savedAt: new Date().toISOString(),
+      data: {
+        startDate: data.startDate || state.startDate,
+        startHour: data.startHour ?? state.startHour,
+        endHour: data.endHour ?? state.endHour,
+        players: cleanPlayers(data.players || []),
+        availability: data.availability || {}
+      }
+    };
+
+    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+
+    const date = new Date().toISOString().slice(0, 10);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "backup_padel_charly_team_" + date + ".json";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    URL.revokeObjectURL(url);
+  } catch (e) {
+    console.error(e);
+    alert("Erreur lors de la sauvegarde.");
+  }
+}
+
+function askRestoreBackup() {
+  if (!isAdmin) {
+    alert("Admin uniquement.");
+    return;
+  }
+
+  document.getElementById("restoreInput").click();
+}
+
+async function restoreBackupFromFile(event) {
+  if (!isAdmin) {
+    alert("Admin uniquement.");
+    return;
+  }
+
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+
+  try {
+    const text = await file.text();
+    const parsed = JSON.parse(text);
+
+    const data = parsed.data || parsed;
+
+    const restored = {
+      startDate: typeof data.startDate === "string" ? data.startDate : state.startDate,
+      startHour: Number.isFinite(Number(data.startHour)) ? Number(data.startHour) : state.startHour,
+      endHour: Number.isFinite(Number(data.endHour)) ? Number(data.endHour) : state.endHour,
+      players: cleanPlayers(data.players || []),
+      availability: data.availability && typeof data.availability === "object" ? data.availability : {}
+    };
+
+    const ok = confirm(
+      "Restaurer cette sauvegarde ?\n\n" +
+      "Cela remplacera tous les créneaux actuellement présents dans Firebase."
+    );
+
+    if (!ok) {
+      event.target.value = "";
+      return;
+    }
+
+    await setDoc(ref, restored);
+    alert("Sauvegarde restaurée 👍");
+    event.target.value = "";
+
+  } catch (e) {
+    console.error(e);
+    alert("Fichier de sauvegarde invalide ou impossible à restaurer.");
+    event.target.value = "";
+  }
+}
+
+async function shareResult() {
+  const text = summaryText();
+  if (navigator.share) {
+    await navigator.share({ title:"Horaire Padel de la Charly Team", text });
+  } else {
+    await navigator.clipboard.writeText(text);
+    alert("Résultat copié.");
+  }
+}
+
+document.getElementById("adminLoginBtn").onclick = activateAdmin;
+document.getElementById("adminLogoutBtn").onclick = deactivateAdmin;
+document.getElementById("adminChangePlayerBtn").onclick = changePlayer;
+document.getElementById("saveSettingsBtn").onclick = saveSettings;
+document.getElementById("openDatePicker").onclick = openDatePicker;
+document.getElementById("resetBtn").onclick = resetAll;
+document.getElementById("backupBtn").onclick = downloadBackup;
+document.getElementById("restoreBtn").onclick = askRestoreBackup;
+document.getElementById("restoreInput").onchange = restoreBackupFromFile;
+document.getElementById("shareBtn").onclick = shareResult;
+
+document.getElementById("viewDay").onclick = () => setView("day");
+document.getElementById("viewWeek").onclick = () => setView("week");
+document.getElementById("viewMonth").onclick = () => setView("month");
+document.getElementById("prevPeriod").onclick = () => movePeriod(-1);
+document.getElementById("nextPeriod").onclick = () => movePeriod(1);
+
+
+
+
+
+
+
+const adminPanel = document.getElementById("adminPanel");
+
+adminPanel.addEventListener("toggle", (e) => {
+  if (!adminPanel.open) return;
+
+  if (!isAdmin) {
+    adminPanel.open = false;
+
+    const password = prompt("Mot de passe admin :");
+
+    if (password === ADMIN_PIN && currentPlayer === ADMIN_NAME) {
+      isAdmin = true;
+      localStorage.setItem("padelAdmin", "true");
+      renderAll();
+
+      setTimeout(() => {
+        adminPanel.open = true;
+      }, 50);
+
+    } else if (password !== null) {
+      alert("Accès refusé.");
+    }
+  }
+});
+
+
+init();
+</script>
+</body>
+</html>
