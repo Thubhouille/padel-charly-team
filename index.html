@@ -672,6 +672,12 @@
       }
     }
 
+  
+    button:disabled {
+      opacity: .38;
+      cursor: not-allowed;
+      filter: grayscale(.35);
+    }
   </style>
 
   <link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjogIkhvcmFpcmUgUGFkZWwgLSBDaGFybHkgVGVhbSIsICJzaG9ydF9uYW1lIjogIlBhZGVsIENoYXJseSIsICJzdGFydF91cmwiOiAiLiIsICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLCAiYmFja2dyb3VuZF9jb2xvciI6ICIjMDcwYjE2IiwgInRoZW1lX2NvbG9yIjogIiNlYzQ4OTkiLCAiZGVzY3JpcHRpb24iOiAiT3JnYW5pc2F0aW9uIGRlcyBjclx1MDBlOW5lYXV4IHBhZGVsIGRlIGxhIENoYXJseSBUZWFtIiwgImljb25zIjogW119">
@@ -833,6 +839,80 @@ function getMonday(date) {
   return d;
 }
 
+function todayStart() {
+  return todayAtMidnight();
+}
+
+function currentWeekStart() {
+  return getMonday(todayAtMidnight());
+}
+
+function currentMonthStart() {
+  const d = todayAtMidnight();
+  return new Date(d.getFullYear(), d.getMonth(), 1);
+}
+
+function clampToPresent() {
+  const today = todayStart();
+
+  if (!currentView) return;
+
+  if (currentView === "day") {
+    if (!selectedDay || selectedDay < today) {
+      selectedDay = new Date(today);
+      periodStart = new Date(today);
+    }
+  }
+
+  if (currentView === "week") {
+    const minWeek = currentWeekStart();
+    if (periodStart < minWeek) {
+      periodStart = new Date(minWeek);
+    }
+  }
+
+  if (currentView === "month") {
+    const minMonth = currentMonthStart();
+    const shownMonth = new Date(periodStart.getFullYear(), periodStart.getMonth(), 1);
+
+    if (shownMonth < minMonth) {
+      periodStart = new Date(minMonth);
+      selectedWeekStart = null;
+      selectedDay = null;
+    }
+  }
+}
+
+function updatePrevButtonState() {
+  const btn = document.getElementById("prevPeriod");
+  if (!btn) return;
+
+  if (!currentView) {
+    btn.disabled = true;
+    return;
+  }
+
+  const today = todayStart();
+
+  if (currentView === "day") {
+    btn.disabled = selectedDay <= today;
+    return;
+  }
+
+  if (currentView === "week") {
+    btn.disabled = getMonday(periodStart) <= currentWeekStart();
+    return;
+  }
+
+  if (currentView === "month") {
+    const shownMonth = new Date(periodStart.getFullYear(), periodStart.getMonth(), 1);
+    btn.disabled = shownMonth <= currentMonthStart();
+    return;
+  }
+
+  btn.disabled = false;
+}
+
 function cleanPlayers(players) {
   return Array.from(new Set((players || [])
     .filter(p => typeof p === "string")
@@ -900,6 +980,8 @@ function updateIntroNotice() {
 }
 
 function renderAll() {
+  clampToPresent();
+  updatePrevButtonState();
   document.getElementById("startDate").value = state.startDate;
   document.getElementById("startHour").value = state.startHour;
   document.getElementById("endHour").value = state.endHour;
@@ -1171,18 +1253,20 @@ function setView(view) {
   currentView = view;
 
   if (view === "day") {
-    selectedDay = new Date(periodStart);
+    const today = todayStart();
+    periodStart = new Date(today);
+    selectedDay = new Date(today);
     selectedWeekStart = null;
   }
 
   if (view === "week") {
-    periodStart = getMonday(periodStart);
+    periodStart = currentWeekStart();
     selectedWeekStart = null;
     selectedDay = null;
   }
 
   if (view === "month") {
-    periodStart = new Date(periodStart.getFullYear(), periodStart.getMonth(), 1);
+    periodStart = currentMonthStart();
     selectedWeekStart = null;
     selectedDay = null;
   }
@@ -1195,21 +1279,35 @@ function setView(view) {
 }
 
 function movePeriod(direction) {
+  if (!currentView) return;
+
   if (currentView === "day") {
-    periodStart.setDate(periodStart.getDate() + direction);
-    selectedDay = new Date(periodStart);
+    const next = new Date(periodStart);
+    next.setDate(next.getDate() + direction);
+
+    if (next < todayStart()) return;
+
+    periodStart = next;
+    selectedDay = new Date(next);
   }
 
   if (currentView === "week") {
-    periodStart.setDate(periodStart.getDate() + direction * 7);
-    periodStart = getMonday(periodStart);
+    const next = getMonday(periodStart);
+    next.setDate(next.getDate() + direction * 7);
+
+    if (next < currentWeekStart()) return;
+
+    periodStart = next;
     selectedWeekStart = null;
     selectedDay = null;
   }
 
   if (currentView === "month") {
-    periodStart.setMonth(periodStart.getMonth() + direction);
-    periodStart.setDate(1);
+    const next = new Date(periodStart.getFullYear(), periodStart.getMonth() + direction, 1);
+
+    if (next < currentMonthStart()) return;
+
+    periodStart = next;
     selectedWeekStart = null;
     selectedDay = null;
   }
@@ -1274,11 +1372,19 @@ function renderMainView() {
 
 function getWeekDates(monday) {
   const dates = [];
+  const today = todayStart();
+
   for (let i = 0; i < 7; i++) {
     const d = new Date(monday);
     d.setDate(monday.getDate() + i);
-    dates.push(d);
+    d.setHours(0,0,0,0);
+
+    // On n'affiche pas les jours passés.
+    if (d >= today) {
+      dates.push(d);
+    }
   }
+
   return dates;
 }
 
@@ -1288,9 +1394,18 @@ function getMonthWeeks() {
 
   let cursor = getMonday(first);
   const weeks = [];
+  const today = todayStart();
 
   while (cursor <= last || cursor.getMonth() === periodStart.getMonth()) {
-    weeks.push(new Date(cursor));
+    const sunday = new Date(cursor);
+    sunday.setDate(cursor.getDate() + 6);
+    sunday.setHours(23,59,59,999);
+
+    // On n'affiche pas les semaines entièrement passées.
+    if (sunday >= today) {
+      weeks.push(new Date(cursor));
+    }
+
     cursor.setDate(cursor.getDate() + 7);
     if (weeks.length > 6) break;
   }
@@ -1440,7 +1555,7 @@ function rangeHasPerfectMatch(start, end) {
 
 function getAllPerfectMatches() {
   return Object.entries(state.availability || {})
-    .filter(([key, players]) => normalizeSlot(players).length >= REQUIRED_PLAYERS)
+    .filter(([key, players]) => keyToDate(key) >= todayStart() && normalizeSlot(players).length >= REQUIRED_PLAYERS)
     .sort((a,b) => a[0].localeCompare(b[0]));
 }
 
@@ -1448,7 +1563,7 @@ function getAllBestSlots() {
   return Object.entries(state.availability || {})
     .filter(([key, players]) => {
       const count = normalizeSlot(players).length;
-      return count >= 2 && count < REQUIRED_PLAYERS;
+      return keyToDate(key) >= todayStart() && count >= 2 && count < REQUIRED_PLAYERS;
     })
     .sort((a,b) => normalizeSlot(b[1]).length - normalizeSlot(a[1]).length || a[0].localeCompare(b[0]))
     .slice(0, 8);
