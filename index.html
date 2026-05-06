@@ -634,50 +634,13 @@
         padding: 4px 7px;
         font-size: 11px;
       }
-
-      .open-hint {
-        margin-top: 4px;
-        font-size: 11px;
-      }
-
-      .player-buttons {
-        grid-template-columns: 1fr 1fr;
-        gap: 8px;
-      }
-
-      .player-buttons button {
-        min-height: 46px;
-        font-size: 15px;
-      }
-
-      button,
-      input,
-      select {
-        min-height: 40px;
-        padding: 8px 10px;
-        font-size: 14px;
-        border-radius: 12px;
-      }
-
-      .player-line {
-        padding: 7px 9px;
-        font-size: 13px;
-        border-radius: 12px;
-      }
-
-      .player-line button {
-        min-height: 30px;
-        font-size: 12px;
-        padding: 5px 8px;
-      }
+.best-summary {
+      margin-top: 5px;
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.35;
     }
 
-  
-    button:disabled {
-      opacity: .38;
-      cursor: not-allowed;
-      filter: grayscale(.35);
-    }
   </style>
 
   <link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjogIkhvcmFpcmUgUGFkZWwgLSBDaGFybHkgVGVhbSIsICJzaG9ydF9uYW1lIjogIlBhZGVsIENoYXJseSIsICJzdGFydF91cmwiOiAiLiIsICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLCAiYmFja2dyb3VuZF9jb2xvciI6ICIjMDcwYjE2IiwgInRoZW1lX2NvbG9yIjogIiNlYzQ4OTkiLCAiZGVzY3JpcHRpb24iOiAiT3JnYW5pc2F0aW9uIGRlcyBjclx1MDBlOW5lYXV4IHBhZGVsIGRlIGxhIENoYXJseSBUZWFtIiwgImljb25zIjogW119">
@@ -691,7 +654,7 @@
 <body>
 <div class="app">
   <header>
-    <h1>!!! Hello, Angels !!!</h1>
+    <h1>🎾 Horaire Padel de la Charly Team</h1>
     
     <div class="top-row">
       <div id="syncStatus" class="pill"><i></i><span>Synchronisation...</span></div>
@@ -1560,12 +1523,42 @@ function getAllPerfectMatches() {
 }
 
 function getAllBestSlots() {
-  return Object.entries(state.availability || {})
-    .filter(([key, players]) => {
-      const count = normalizeSlot(players).length;
-      return keyToDate(key) >= todayStart() && count >= 2 && count < REQUIRED_PLAYERS;
+  const grouped = {};
+
+  Object.entries(state.availability || {}).forEach(([key, players]) => {
+    const date = keyToDate(key);
+    if (date < todayStart()) return;
+
+    const count = normalizeSlot(players).length;
+    if (count < 2 || count >= REQUIRED_PLAYERS) return;
+
+    const dayKey = key.slice(0, 10);
+    if (!grouped[dayKey]) {
+      const d = new Date(dayKey + "T00:00:00");
+      grouped[dayKey] = {
+        dayKey,
+        date: d,
+        slots: [],
+        bestCount: 0
+      };
+    }
+
+    grouped[dayKey].slots.push({
+      key,
+      time: date.toLocaleTimeString("fr-BE", { hour: "2-digit", minute: "2-digit" }),
+      count,
+      players: normalizeSlot(players)
+    });
+
+    grouped[dayKey].bestCount = Math.max(grouped[dayKey].bestCount, count);
+  });
+
+  return Object.values(grouped)
+    .map(day => {
+      day.slots.sort((a,b) => a.key.localeCompare(b.key));
+      return day;
     })
-    .sort((a,b) => normalizeSlot(b[1]).length - normalizeSlot(a[1]).length || a[0].localeCompare(b[0]))
+    .sort((a,b) => b.bestCount - a.bestCount || a.dayKey.localeCompare(b.dayKey))
     .slice(0, 8);
 }
 
@@ -1603,28 +1596,33 @@ function renderPerfectMatches() {
 
 function renderBest() {
   const best = document.getElementById("best");
-  const list = getAllBestSlots();
+  const days = getAllBestSlots();
 
-  if (!list.length) {
+  if (!days.length) {
     best.innerHTML = `<p class="small">Aucun créneau en 2/4 ou 3/4 pour le moment.</p>`;
     return;
   }
 
-  best.innerHTML = list.map(([key, players], index) => {
-    const p = normalizeSlot(players);
-    const d = new Date(key);
-    const when = d.toLocaleDateString("fr-BE", { weekday:"long", day:"2-digit", month:"2-digit", year:"numeric" }) +
-      " à " + d.toLocaleTimeString("fr-BE", { hour:"2-digit", minute:"2-digit" });
+  best.innerHTML = days.map((day, index) => {
+    const when = day.date.toLocaleDateString("fr-BE", {
+      weekday: "long",
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric"
+    });
 
-    const levelClass = p.length === 3 ? "best-3" : "best-2";
-    const label = p.length === 3 ? "🔥 Presque complet — 3/4" : "✨ Opportunité — 2/4";
+    const levelClass = day.bestCount === 3 ? "best-3" : "best-2";
+    const label = day.bestCount === 3 ? "🔥 Journée presque complète — 3/4" : "✨ Journée possible — 2/4";
+    const openKey = day.slots[0].key;
+
+    const names = Array.from(new Set(day.slots.flatMap(slot => slot.players))).join(", ");
 
     return `
-      <div class="best ${levelClass}" data-open="${key}">
-        <strong>${index + 1}. ${when}</strong><br>
-        ${p.length}/${REQUIRED_PLAYERS} dispo : ${p.join(", ")}
+      <div class="best ${levelClass}" data-open="${openKey}">
+        <strong>${index + 1}. ${when}</strong>
+        <div class="best-summary">${day.bestCount}/${REQUIRED_PLAYERS} dispo : ${names}</div>
         <span class="best-level">${label}</span>
-        <span class="open-hint">↪ Cliquer pour ouvrir ce jour</span>
+        <span class="open-hint">↪ Cliquer pour voir les créneaux de cette journée</span>
       </div>
     `;
   }).join("");
